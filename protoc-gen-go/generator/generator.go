@@ -267,7 +267,9 @@ func (d *FileDescriptor) PackageName() string { return uniquePackageOf(d.FileDes
 // VarName is the variable name we'll use in the generated code to refer
 // to the compressed bytes of this descriptor. It is not exported, so
 // it is only valid inside the generated package.
-func (d *FileDescriptor) VarName() string { return fmt.Sprintf("fileDescriptor%d", d.index) }
+func (d *FileDescriptor) VarName() string {
+	return fmt.Sprintf("fileDescriptor%s", strings.Split(d.goFileName(), ".")[0])
+}
 
 // goPackageOption interprets the file's go_package option.
 // If there is no go_package, it returns ("", "", false).
@@ -667,10 +669,12 @@ func RegisterUniquePackageName(pkg string, f *FileDescriptor) string {
 	// Convert dots to underscores before finding a unique alias.
 	pkg = strings.Map(badToUnderscore, pkg)
 
-	for i, orig := 1, pkg; pkgNamesInUse[pkg]; i++ {
-		// It's a duplicate; must rename.
-		pkg = orig + strconv.Itoa(i)
-	}
+	/*
+		for i, orig := 1, pkg; pkgNamesInUse[pkg]; i++ {
+			// It's a duplicate; must rename.
+			pkg = orig + strconv.Itoa(i)
+		}
+	*/
 	// Install it.
 	pkgNamesInUse[pkg] = true
 	if f != nil {
